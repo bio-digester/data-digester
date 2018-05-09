@@ -2,110 +2,53 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
-from rest_framework.viewsets import ModelViewSet
 from api.models import Biodigester
 from api.serializers import BiodigesterSerializer
+from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
-class BiodigestersViewSet(ModelViewSet):
+class BiodigesterList(APIView):
     """
-    List all code biodigesters, or create a new biodigester.
+    List all biodigesters, or create a new biodigester.
     """
-    queryset = Biodigester.objects.all()
-    serializer_class = BiodigesterSerializer
+    def get(self, request, format=None):
+        biodigester = Biodigester.objects.all()
+        serializer = BiodigesterSerializer(biodigester, many=True)
+        return Response(serializer.data)
 
-    def list(self, request):
-        """
-        API endpoint that allows list BiodigesterSerializer
-        ---
-        Response example:
-        ```
-        [
-          {
-            "id": 1,
-            "water_flow": 110.5,
-            "temperature": 40,
-            "internal_pressure": 60,
-            "ph": 7,
-            "gas_production": 136
-          },
-          {
-            "id": 2,
-            "water_flow": 110.5,
-            "temperature": 40,
-            "internal_pressure": 60,
-            "ph": 7,
-            "gas_production": 136
-          }
-        ]
-        ```
-        """
-        return super(BiodigestersViewSet, self).list(request)
+    def post(self, request, format=None):
+        serializer = BiodigesterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def create(self, request):
-        """
-        API endpoint biodigesters ...
-        ---
-        Body example:
-        ```
-        {
-          "id": 2,
-          "water_flow": 110.5,
-          "temperature": 40,
-          "internal_pressure": 60,
-          "ph": 7,
-          "gas_production": 136
-        }
-        ```
-        Response example:
-        ```
-        {
+class BiodigesterDetail(APIView):
+    """
+    Retrieve, update or delete a biodigester instance.
+    """
+    def get_object(self, pk):
+        try:
+            return Biodigester.objects.get(pk=pk)
+        except Biodigester.DoesNotExist:
+            raise Http404
 
-        }
-        ```
-        """
-        return super(BiodigestersViewSet, self).create(request)
-# @csrf_exempt
-# def biodigester_list(request):
-#     """
-#     List all code biodigesters, or create a new biodigester.
-#     """
-#     if request.method == 'GET':
-#         biodigesters = Biodigester.objects.all()
-#         serializer = BiodigesterSerializer(biodigesters, many=True)
-#         return JsonResponse(serializer.data, safe=False)
-#
-#     elif request.method == 'POST':
-#         data = JSONParser().parse(request)
-#         serializer = BiodigesterSerializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonResponse(serializer.data, status=201)
-#         return JsonResponse(serializer.errors, status=400)
-#
-# @csrf_exempt
-# def biodigester_detail(request, pk):
-#     """
-#     Retrieve, update or delete a code biodigester.
-#     """
-#     try:
-#         biodigester = Biodigester.objects.get(pk=pk)
-#     except Biodigester.DoesNotExist:
-#         return HttpResponse(status=404)
-#
-#     if request.method == 'GET':
-#         serializer = BiodigesterSerializer(biodigester)
-#         return JsonResponse(serializer.data)
-#
-#     elif request.method == 'PUT':
-#         data = JSONParser().parse(request)
-#         serializer = BiodigesterSerializer(biodigester, data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonResponse(serializer.data)
-#         return JsonResponse(serializer.errors, status=400)
-#
-#     elif request.method == 'DELETE':
-#         biodigester.delete()
-#         return HttpResponse(status=204)
+    def get(self, request, pk, format=None):
+        biodigester = self.get_object(pk)
+        serializer = BiodigesterSerializer(biodigester)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        biodigester = self.get_object(pk)
+        serializer = BiodigesterSerializer(biodigester, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        biodigester = self.get_object(pk)
+        biodigester.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
