@@ -3,3 +3,7 @@ pandas
 matplotlib
 scipy
 jupyter
+django==2.0.5
+django-rest-swagger
+djangorestframework==3.8.2
+httpie
