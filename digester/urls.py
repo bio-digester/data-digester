@@ -1,4 +1,5 @@
-"""digester URL Configuration
+"""
+digester URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
@@ -14,8 +15,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.conf.urls import url, include
+from rest_framework import routers
+from rest_framework_swagger.views import get_swagger_view
+from api.views import BiodigestersViewSet
+
+
+schema_view = get_swagger_view(title='Data digester API')
+router = routers.DefaultRouter()
+router.register(r'biodigesters', BiodigestersViewSet, base_name='biodigesters')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    url(r'^$', schema_view),
+    url(r'^api/', include(router.urls)),
+    #url(r'^api/', include('api.urls')),
+    url(r'^admin/', admin.site.urls),
 ]
