@@ -1,0 +1,4 @@
+temperatura
+ph
+pressao
+producao_gas
