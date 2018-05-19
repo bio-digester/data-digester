@@ -7,6 +7,7 @@ class Biodigester(models.Model):
     internal_pressure = models.FloatField(blank=True, default=None)
     ph = models.FloatField(blank=True, default=None)
     gas_production = models.FloatField(blank=True, default=None)
+    volume = models.FloatField(blank=True, default=None)
 
     class Meta:
         ordering = ('created',)
