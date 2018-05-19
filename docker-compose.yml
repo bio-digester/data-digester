@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  digester:
+  data-digester:
     build: .
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - "8999:8000"
