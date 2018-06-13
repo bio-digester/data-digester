@@ -1,4 +1,6 @@
-temperatura
+water_flow
+temperature
+internal_pressure
 ph
-pressao
-producao_gas
+gas_production
+volume
