@@ -8,6 +8,9 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from sklearn.externals import joblib
+
+regressor = joblib.load('./modelo.pkl')
 
 class BiodigesterList(APIView):
     """
@@ -19,10 +22,32 @@ class BiodigesterList(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
+        data = request.data
+        samples_size = len(data)
+        to_predict = []
+
+        for i in range(0, samples_size):
+            sample = [
+                        data[i]['water_flow'],
+                        data[i]['temperature'],
+                        data[i]['internal_pressure'],
+                        data[i]['ph'],
+                        data[i]['volume']
+            ]
+            to_predict.append(sample)
+
+        print(to_predict)
+        prediction = regressor.predict(to_predict)
+
+        prediction_serial = []
+        for pred in prediction:
+            pred_dict = {'gas': pred}
+            prediction_serial.append(pred_dict)
         serializer = BiodigesterSerializer(data=request.data, many=True)
         if serializer.is_valid():
+            #print(serializer.data)
             serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(prediction_serial, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class BiodigesterDetail(APIView):
