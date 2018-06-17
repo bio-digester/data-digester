@@ -10,5 +10,6 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+      - "8888:8888"
     depends_on:
       - db

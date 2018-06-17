@@ -12,17 +12,34 @@ from sklearn.externals import joblib
 
 regressor = joblib.load('./modelo.pkl')
 
-class BiodigesterList(APIView):
-    """
-    List all biodigesters, or create a new biodigester.
-    """
+class Optimize(APIView):
     def get(self, request, format=None):
-        biodigester = Biodigester.objects.all()
-        serializer = BiodigesterSerializer(biodigester, many=True)
-        return Response(serializer.data)
+        temperature_range = self.generate_temperature_range()
+        volume_range = self.generate_volume_range()
 
-    def post(self, request, format=None):
-        data = request.data
+        all_predictions = []
+        for temperature in temperature_range:
+            for volume in volume_range:
+                prediction = regressor.predict([[1, temperature, 1, 1, volume]])
+                all_predictions.append({'temperature': temperature, 'volume': volume, 'prediction': prediction[0]})
+        return Response(all_predictions, status=status.HTTP_201_CREATED)
+
+    def generate_temperature_range(self):
+        INITIAL_TEMPERATURE = 30
+        FINAL_TEMPERATURE = 45
+        temperature_range = [30, 35, 40, 45]
+        # for i in range(INITIAL_TEMPERATURE, FINAL_TEMPERATURE):
+        #     temp_range.append(i)
+        return temperature_range
+
+    def generate_volume_range(self):
+        INITIAL_VOLUME = 0.5
+        FINAL_VOLUME = 0.7
+        volume_range = [0.3, 0.35, 0.4, 0.45, 0.5, 0.65, 0.7]
+        return volume_range
+
+class DataPrepare:
+    def prepare(data):
         samples_size = len(data)
         to_predict = []
 
@@ -35,19 +52,43 @@ class BiodigesterList(APIView):
                         data[i]['volume']
             ]
             to_predict.append(sample)
+        return to_predict
 
-        print(to_predict)
-        prediction = regressor.predict(to_predict)
+class Predict(APIView):
+    def post(self, request, format=None):
+        data = request.data
+        to_predict = DataPrepare.prepare(data)
+
+        try:
+            print(to_predict)
+            prediction = regressor.predict(to_predict)
+        except:
+            print("bad request")
+            #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         prediction_serial = []
         for pred in prediction:
-            pred_dict = {'gas': pred}
+            pred_dict = {'gas_production': pred}
             prediction_serial.append(pred_dict)
+
+        return Response(prediction_serial, status=status.HTTP_201_CREATED)
+
+
+class BiodigesterList(APIView):
+    """
+    List all biodigesters, or create a new biodigester.
+    """
+    def get(self, request, format=None):
+        biodigester = Biodigester.objects.all()
+        serializer = BiodigesterSerializer(biodigester, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
         serializer = BiodigesterSerializer(data=request.data, many=True)
         if serializer.is_valid():
             #print(serializer.data)
             serializer.save()
-            return Response(prediction_serial, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class BiodigesterDetail(APIView):
