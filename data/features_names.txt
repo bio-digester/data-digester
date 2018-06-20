@@ -1,6 +1,0 @@
-water_flow
-temperature
-internal_pressure
-ph
-gas_production
-volume
