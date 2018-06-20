@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+
+  data-digester:
+    build: .
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+      - "8888:8888"
+    depends_on:
+      - db
