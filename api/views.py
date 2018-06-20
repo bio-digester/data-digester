@@ -15,29 +15,24 @@ regressor = joblib.load('./modelo.pkl')
 
 class Optimize(APIView):
     def get(self, request, format=None):
-        temperature_range = self.generate_temperature_range()
-        volume_range = self.generate_volume_range()
+        temperature_range = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45]
+        volume_range = [0.3, 0.4, 0.5, 0.6, 0.7]
+        pressure_range = [0.5, 0.75, 1.0]
+        ph_range = [6.5, 6.0, 7.5]
 
         all_predictions = []
         for temperature in temperature_range:
-            for volume in volume_range:
-                prediction = regressor.predict([[1, temperature, 1, 1, volume]])
-                all_predictions.append({'temperature': temperature, 'volume': volume, 'prediction': prediction[0]})
+            for internal_pressure in pressure_range:
+                for ph in ph_range:
+                    for volume in volume_range:
+                        prediction = regressor.predict([[temperature, internal_pressure, ph, volume]])
+                        all_predictions.append({'temperature': temperature,
+                                                'internal_pressure': internal_pressure,
+                                                'ph': ph,
+                                                'volume': volume,
+                                                'prediction': prediction[0]
+                                                })
         return Response(all_predictions, status=status.HTTP_201_CREATED)
-
-    def generate_temperature_range(self):
-        INITIAL_TEMPERATURE = 30
-        FINAL_TEMPERATURE = 45
-        temperature_range = [30, 35, 40, 45]
-        # for i in range(INITIAL_TEMPERATURE, FINAL_TEMPERATURE):
-        #     temp_range.append(i)
-        return temperature_range
-
-    def generate_volume_range(self):
-        INITIAL_VOLUME = 0.5
-        FINAL_VOLUME = 0.7
-        volume_range = [0.3, 0.35, 0.4, 0.45, 0.5, 0.65, 0.7]
-        return volume_range
 
 class DataPrepare:
     def prepare(data):
@@ -46,7 +41,6 @@ class DataPrepare:
 
         for i in range(0, samples_size):
             sample = [
-                        data[i]['water_flow'],
                         data[i]['temperature'],
                         data[i]['internal_pressure'],
                         data[i]['ph'],
