@@ -15,7 +15,7 @@ regressor = joblib.load('./modelo.pkl')
 
 class Optimize(APIView):
     def get(self, request, format=None):
-        temperature_range = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45]
+        temperature_range = [30, 32, 34, 36, 38, 40, 42, 44, 45]
         volume_range = [0.3, 0.4, 0.5, 0.6, 0.7]
         pressure_range = [0.5, 0.75, 1.0]
         ph_range = [6.5, 6.0, 7.5]
