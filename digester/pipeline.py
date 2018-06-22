@@ -48,8 +48,8 @@ def dump_to_dataframe():
 def create_model():
     print("creating machine learning model")
     bio_dataframe = dump_to_dataframe()
-    target = bio_dataframe['volume']
-    data = bio_dataframe.drop(['volume'], axis=1)
+    target = bio_dataframe['gas_production']
+    data = bio_dataframe.drop(['gas_production'], axis=1)
 
     # particionar dados em treino e teste
     # .1 10% dos dados para teste
@@ -59,7 +59,7 @@ def create_model():
     #print(data_test)
     print(data)
 
-    regressor = neighbors.KNeighborsRegressor(n_neighbors = 5)
+    regressor = neighbors.KNeighborsRegressor(n_neighbors = 1)
     regressor.fit(data, target)
 
     #joblib.dump(regressor, 'modelo.pkl')

@@ -11,8 +11,6 @@ from rest_framework import status
 from sklearn.externals import joblib
 from digester.pipeline import create_model
 
-regressor = joblib.load('./modelo.pkl')
-
 class Drop(APIView):
     def get(self, request, format=None):
         Biodigester.objects.all().delete()
@@ -20,9 +18,10 @@ class Drop(APIView):
 
 class Optimize(APIView):
     def get(self, request, format=None):
+        regressor = joblib.load('./modelo.pkl')
         temperature_range = [30, 32, 34, 36, 38, 40, 42, 44, 45]
-        volume_range = [0.3, 0.4, 0.5, 0.6, 0.7]
-        pressure_range = [0.5, 0.75, 1.0]
+        volume_range = [10, 15, 20, 25]
+        pressure_range = [0.1, 0.15, 0.2]
         ph_range = [6.5, 6.0, 7.5]
 
         all_predictions = []
@@ -55,6 +54,7 @@ class DataPrepare:
         return to_predict
 
 class Predict(APIView):
+    regressor = joblib.load('./modelo.pkl')
     def post(self, request, format=None):
         data = request.data
         to_predict = DataPrepare.prepare(data)
