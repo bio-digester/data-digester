@@ -13,6 +13,11 @@ from digester.pipeline import create_model
 
 regressor = joblib.load('./modelo.pkl')
 
+class Drop(APIView):
+    def get(self, request, format=None):
+        Biodigester.objects.all().delete()
+        return Response(status=status.HTTP_200_OK)
+
 class Optimize(APIView):
     def get(self, request, format=None):
         temperature_range = [30, 32, 34, 36, 38, 40, 42, 44, 45]
