@@ -7,6 +7,7 @@ from sklearn import linear_model
 from sklearn.externals import joblib
 from api.models import Biodigester
 from django.core import serializers
+from sklearn import neighbors
 
 DUMP_JSON_PATH = '../data/bio_data.json'
 DUMP_CSV_PATH = '../data/bio_data.csv'
@@ -58,7 +59,7 @@ def create_model():
     #print(data_test)
     print(data)
 
-    regressor = linear_model.LinearRegression()
+    regressor = neighbors.KNeighborsRegressor(n_neighbors = 5)
     regressor.fit(data, target)
 
     #joblib.dump(regressor, 'modelo.pkl')
