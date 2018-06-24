@@ -18,7 +18,7 @@ class Drop(APIView):
 
 class Optimize(APIView):
     def get(self, request, format=None):
-        regressor = joblib.load('./modelo.pkl')
+        regressor = create_model()
         temperature_range = [30, 32, 34, 36, 38, 40, 42, 44, 45]
         volume_range = [10, 15, 20, 25]
         pressure_range = [0.1, 0.15, 0.2]
@@ -54,8 +54,8 @@ class DataPrepare:
         return to_predict
 
 class Predict(APIView):
-    regressor = joblib.load('./modelo.pkl')
     def post(self, request, format=None):
+        regressor = create_model()
         data = request.data
         to_predict = DataPrepare.prepare(data)
 

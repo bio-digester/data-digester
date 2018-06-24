@@ -64,3 +64,5 @@ def create_model():
 
     #joblib.dump(regressor, 'modelo.pkl')
     joblib.dump(regressor, '../modelo.pkl')
+
+    return regressor
